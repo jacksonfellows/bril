@@ -17,6 +17,8 @@ def basic_blocks(instrs):
     return blocks
 
 def lookup(tup, table):
+    if tup[0] == 'id':
+        return tup[1]
     for i,row in enumerate(table):
         if tup == row[1]:
             return i
