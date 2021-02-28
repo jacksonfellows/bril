@@ -32,6 +32,8 @@ def instr2tup(instr, env):
     return tuple([instr['op']] + [env[arg] for arg in instr['args']])
 
 def tup2instr(instr, tup, table, env):
+    if instr['op'] == 'id' and table[env[instr['args'][0]]][1][0] == 'const':
+        return {'dest': instr['dest'], 'type': instr['type'], 'op': 'const', 'value': table[env[instr['args'][0]]][1][1]}
     new_instr = {}
     for prop in ['dest', 'op', 'type', 'value']:
         if prop in instr:
