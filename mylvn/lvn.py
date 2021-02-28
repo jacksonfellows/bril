@@ -9,11 +9,13 @@ def basic_blocks(instrs):
                 blocks.append(block)
                 block = []
         elif 'label' in instr:
-            blocks.append(block)
+            if block:
+                blocks.append(block)
             block = [instr]
         else:
             pass
-    blocks.append(block)
+    if block:
+        blocks.append(block)
     return blocks
 
 def lookup(tup, table):
