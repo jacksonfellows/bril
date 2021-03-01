@@ -34,7 +34,7 @@ def instr2tup(instr, env):
         return ('const', instr['value'])
     if instr['op'] in {'add', 'mul'}:
         return tuple([instr['op']] + sorted([env[arg] for arg in instr['args']]))
-    return tuple([instr['op']] + ([env[arg] for arg in instr['args']] if 'args' in instr else []))
+    return tuple([instr['op']] + instr.get('labels', []) + instr.get('funcs', []) + ([env[arg] for arg in instr['args']] if 'args' in instr else []))
 
 def tup2instr(instr, tup, table, env):
     if 'dest' in instr and table[env[instr['dest']]][2] is not None:
