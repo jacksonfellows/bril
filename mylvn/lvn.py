@@ -31,7 +31,7 @@ def instr2tup(instr, env):
         return ('const', instr['value'])
     if instr['op'] in ['add', 'mul']:
         return tuple([instr['op']] + sorted([env[arg] for arg in instr['args']]))
-    return tuple([instr['op']] + [env[arg] for arg in instr['args']])
+    return tuple([instr['op']] + [env[arg] for arg in instr['args']] if 'args' in instr else [])
 
 def tup2instr(instr, tup, table, env):
     if instr['op'] == 'id' and table[env[instr['args'][0]]][1][0] == 'const':
