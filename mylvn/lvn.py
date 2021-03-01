@@ -97,12 +97,20 @@ def lvn(block):
                 env[unknown] = i
         tup = instr2tup(instr, env)
         if 'dest' in instr:
-            try:
-                env[instr['dest']] = lookup(tup, table)
-            except KeyError:
+            if instr['dest'] in env:
+                old_i = env[instr['dest']]
                 i = len(table)
                 table.append((tup, instr['dest'], make_constant(tup, table)))
                 env[instr['dest']] = i
+                for var in [var for var,val in env.items() if val == old_i]:
+                    del env[var]
+            else:
+                try:
+                    env[instr['dest']] = lookup(tup, table)
+                except KeyError:
+                    i = len(table)
+                    table.append((tup, instr['dest'], make_constant(tup, table)))
+                    env[instr['dest']] = i
         new_block.append(tup2instr(instr, tup, table, env))
     return new_block
 
