@@ -81,13 +81,31 @@ def lvn(block):
         new_block.append(tup2instr(instr, tup, table, env))
     return new_block
 
+def dce(func):
+    changed = True
+    while changed:
+        changed = False
+        blocks = basic_blocks(func['instrs'])
+        used_vars = set()
+        for block in blocks:
+            for instr in block:
+                used_vars |= set(instr.get('args', []))
+        new_func = {'name': func['name'], 'instrs': []}
+        for block in blocks:
+            new_block = [instr for instr in block if 'dest' not in instr or instr['dest'] in used_vars]
+            if len(block) != len(new_block):
+                changed = True
+            new_func['instrs'] += new_block
+        func = new_func
+    return new_func
+
 def optimize(prog):
     new_prog = {'functions': []}
     for func in prog['functions']:
         new_func = {'name': func['name'], 'instrs': []}
         for block in basic_blocks(func['instrs']):
             new_func['instrs'] += lvn(block)
-        new_prog['functions'].append(new_func)
+        new_prog['functions'].append(dce(new_func))
     return new_prog
 
 import json, sys
