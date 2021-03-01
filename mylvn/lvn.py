@@ -34,8 +34,8 @@ def instr2tup(instr, env):
     return tuple([instr['op']] + [env[arg] for arg in instr['args']] if 'args' in instr else [])
 
 def tup2instr(instr, tup, table, env):
-    if instr['op'] == 'id' and table[env[instr['args'][0]]][1][0] == 'const':
-        return {'dest': instr['dest'], 'type': instr['type'], 'op': 'const', 'value': table[env[instr['args'][0]]][1][1]}
+    if 'dest' in instr and table[env[instr['dest']]][3] is not None:
+        return {'dest': instr['dest'], 'type': instr['type'], 'op': 'const', 'value': table[env[instr['dest']]][3]}
     new_instr = {}
     for prop in {'dest', 'op', 'type', 'value'}:
         if prop in instr:
@@ -43,6 +43,19 @@ def tup2instr(instr, tup, table, env):
     if 'args' in instr:
         new_instr['args'] = [table[env[arg]][2] for arg in instr['args']]
     return new_instr
+
+from operator import add, mul
+
+folders = {
+    'add': add,
+    'mul': mul,
+}
+
+def make_constant(tup, table):
+    if tup[0] == 'const':
+        return tup[1]
+    if tup[0] in folders and all(table[i][3] is not None for i in tup[1:]):
+        return folders[tup[0]](*(table[i][3] for i in tup[1:]))
 
 def lvn(block):
     new_block = []
@@ -55,7 +68,7 @@ def lvn(block):
         if 'args' in instr:
             for unknown in (arg for arg in instr['args'] if arg not in env):
                 i = len(table)
-                table.append((i, None, unknown))
+                table.append((i, None, unknown, None))
                 env[unknown] = i
         tup = instr2tup(instr, env)
         if 'dest' in instr:
@@ -63,7 +76,7 @@ def lvn(block):
                 env[instr['dest']] = lookup(tup, table)
             except KeyError:
                 i = len(table)
-                table.append((i, tup, instr['dest']))
+                table.append((i, tup, instr['dest'], make_constant(tup, table)))
                 env[instr['dest']] = i
         new_block.append(tup2instr(instr, tup, table, env))
     return new_block
