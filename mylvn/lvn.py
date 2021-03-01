@@ -19,7 +19,7 @@ def basic_blocks(instrs):
     return blocks
 
 def tupeq(xs, ys):
-    return type(xs) == tuple and type(ys) == tuple and len(xs) == len(ys) and all(type(x) == type(y) and x == y for x,y in zip(xs, ys))
+    return type(xs) == tuple and type(ys) == tuple and len(xs) == len(ys) and xs[0] != 'alloc' and all(type(x) == type(y) and x == y for x,y in zip(xs, ys))
 
 def lookup(tup, table):
     if tup[0] == 'id':
