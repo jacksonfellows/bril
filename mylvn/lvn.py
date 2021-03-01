@@ -52,6 +52,11 @@ def lvn(block):
         if 'op' not in instr:
             new_block.append(dict(instr))
             continue
+        if 'args' in instr:
+            for unknown in (arg for arg in instr['args'] if arg not in env):
+                i = len(table)
+                table.append((i, None, unknown))
+                env[unknown] = i
         tup = instr2tup(instr, env)
         if 'dest' in instr:
             try:
