@@ -44,18 +44,40 @@ def tup2instr(instr, tup, table, env):
         new_instr['args'] = [table[env[arg]][2] for arg in instr['args']]
     return new_instr
 
-from operator import add, mul
+from operator import *
 
 folders = {
     'add': add,
     'mul': mul,
+    'sub': sub,
+    'div': floordiv,
+    'lt': lt,
+    'gt': gt,
+    'le': le,
+    'ge': ge,
+    'eq': eq,
+    'ne': ne,
+    'and': and_,
+    'or': or_,
+    'not': not_
 }
 
 def make_constant(tup, table):
     if tup[0] == 'const':
         return tup[1]
     if tup[0] in folders and all(table[i][3] is not None for i in tup[1:]):
-        return folders[tup[0]](*(table[i][3] for i in tup[1:]))
+        try:
+            return folders[tup[0]](*(table[i][3] for i in tup[1:]))
+        except:
+            pass
+    if tup[0] == 'and' and any(table[i][3] == False for i in tup[1:]):
+        return False
+    if tup[0] == 'or' and any(table[i][3] == True for i in tup[1:]):
+        return True
+    if tup[0] in {'eq', 'le', 'ge'} and table[tup[1]] == table[tup[2]]:
+        return True
+    if tup[0] in {'ne', 'lt', 'gt'} and table[tup[1]] == table[tup[2]]:
+        return False
 
 def lvn(block):
     new_block = []
