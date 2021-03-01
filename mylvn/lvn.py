@@ -49,6 +49,9 @@ def lvn(block):
     table = []
     env = {}
     for instr in block:
+        if 'op' not in instr:
+            new_block.append(dict(instr))
+            continue
         tup = instr2tup(instr, env)
         if 'dest' in instr:
             try:
