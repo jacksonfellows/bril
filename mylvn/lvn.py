@@ -29,7 +29,7 @@ def lookup(tup, table):
 def instr2tup(instr, env):
     if instr['op'] == 'const':
         return ('const', instr['value'])
-    if instr['op'] in ['add', 'mul']:
+    if instr['op'] in {'add', 'mul'}:
         return tuple([instr['op']] + sorted([env[arg] for arg in instr['args']]))
     return tuple([instr['op']] + [env[arg] for arg in instr['args']] if 'args' in instr else [])
 
@@ -37,7 +37,7 @@ def tup2instr(instr, tup, table, env):
     if instr['op'] == 'id' and table[env[instr['args'][0]]][1][0] == 'const':
         return {'dest': instr['dest'], 'type': instr['type'], 'op': 'const', 'value': table[env[instr['args'][0]]][1][1]}
     new_instr = {}
-    for prop in ['dest', 'op', 'type', 'value']:
+    for prop in {'dest', 'op', 'type', 'value'}:
         if prop in instr:
             new_instr[prop] = instr[prop]
     if 'args' in instr:
